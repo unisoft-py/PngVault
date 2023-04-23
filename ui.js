@@ -48,21 +48,16 @@ setInterval(_ => {
                 .removeClass('drop-zone')
                 .empty().append(uploadedImage.img)
 
-        console.log(uploadedFiles)
-        if (uploadedFiles === null) {
-            console.log('in1')
+        if (uploadedFiles === null)
             $filesContainer
                 .addClass('drop-zone')
                 .addClass('center')
                 .empty().html('LOAD FILES')
-        }
-        else {
-            console.log('in2')
+        else
             $filesContainer
                 .removeClass('drop-zone')
                 .removeClass('center')
-                .empty().append(uploadedFiles.html)
-        }
+                .empty().append(JSON.stringify(uploadedFiles.list))
     }
 }, 100)
 $(document)
@@ -122,7 +117,7 @@ function getImage(image) {
 
 
 function getFiles(items) {
-    var files = []
+    var files = Array()
     if (items instanceof FileList)
         $.each(items, (i, item) => files.push({[item.name]: item}))
     else
@@ -132,7 +127,6 @@ function getFiles(items) {
         html: JSON.stringify(files),
         list: files
     }
-    console.log(items, files, uploadedFiles)
 }
 function recursivelyEntryIterating(files_folder, entry) {
     if (entry.isFile)
