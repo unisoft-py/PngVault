@@ -36,12 +36,23 @@ body {
     background-color: #171717;
 }
 .container {
+    display: flex;
+    flex-direction: column;
     color: #eee;
     height: 100%;
     width: 100%;
     max-width: 100%;
 }
+.container svg {
+    pointer-events: none;
+    color: #aaa;
+    max-width: 10rem;
+}
 
+.empty {
+    cursor: pointer;
+    font-size: 3rem;
+}
 .drop-zone {
     cursor: pointer;
     font-size: 3rem;

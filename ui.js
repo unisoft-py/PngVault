@@ -1,5 +1,8 @@
 $(_=>{
 
+$.get('load_empty.svg', data => window.$loadEmptySvg = $($(data).get(0).firstChild))
+$.get('load_drop.svg', data => window.$loadDropSvg = $($(data).get(0).firstChild))
+
 var $imagePanel = $('#image-panel')
 var $imageContainer = $('#image-container')
 window.uploadedImage = null
@@ -12,9 +15,8 @@ var $selectFiles = $('<input>')
     .attr('type', 'file')
     .on('change', function(event) {
         event.preventDefault()
-        if ($(this).attr('multiple')) {
+        if ($(this).attr('multiple'))
             getFiles(event.target.files)
-        }
         else {
             let file = event.target.files[0]
             if (file.type === 'image/png')
@@ -30,34 +32,48 @@ setInterval(_ => {
     if (new Date() - lastDragover <= 100) {
         $imageContainer
             .addClass('drop-zone')
-            .html('DROP IMAGE HERE')
+            .empty()
+            .text('drop image here')
+            .prepend($loadDropSvg.clone())
 
         $filesContainer
             .addClass('drop-zone')
             .addClass('center')
             .data('inner', $filesContainer.children())
-            .html('DROP FILES HERE')
+            .empty()
+            .text('drop files here')
+            .prepend($loadDropSvg.clone())
     }
-    else if ($imageContainer.hasClass('drop-zone') || $filesContainer.hasClass('drop-zone')) {
+    else if ($imageContainer.hasClass('drop-zone') || $filesContainer.hasClass('empty')) {
         if (uploadedImage === null)
             $imageContainer
-                .addClass('drop-zone')
-                .empty().html('LOAD IMAGE')
+                .removeClass('drop-zone')
+                .addClass('empty')
+                .empty()
+                .text('click to attach png')
+                .prepend($loadEmptySvg.clone())
         else
             $imageContainer
                 .removeClass('drop-zone')
-                .empty().append(uploadedImage.img)
+                .removeClass('empty')
+                .empty()
+                .append(uploadedImage.img)
 
         if (uploadedFiles === null)
             $filesContainer
-                .addClass('drop-zone')
+                .removeClass('drop-zone')
+                .addClass('empty')
                 .addClass('center')
-                .empty().html('LOAD FILES')
+                .empty()
+                .text('click to attach files')
+                .prepend($loadEmptySvg.clone())
         else
             $filesContainer
                 .removeClass('drop-zone')
+                .removeClass('empty')
                 .removeClass('center')
-                .empty().append(JSON.stringify(uploadedFiles.list))
+                .empty()
+                .append(JSON.stringify(uploadedFiles.list))
     }
 }, 100)
 $(document)
