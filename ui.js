@@ -9,7 +9,10 @@ window.uploadedImage = null
 
 var $filesPanel = $('#files-panel')
 var $filesContainer = $('#files-container')
-window.uploadedFiles = null
+window.uploadedFiles = {
+    html: '',
+    list: []
+}
 
 var $selectFiles = $('<input>')
     .attr('type', 'file')
@@ -44,7 +47,7 @@ setInterval(_ => {
             .text('drop files here')
             .prepend($loadDropSvg.clone())
     }
-    else if ($imageContainer.hasClass('drop-zone') || $filesContainer.hasClass('empty')) {
+    else {
         if (uploadedImage === null)
             $imageContainer
                 .removeClass('drop-zone')
@@ -59,11 +62,10 @@ setInterval(_ => {
                 .empty()
                 .append(uploadedImage.img)
 
-        if (uploadedFiles === null)
+        if (!uploadedFiles.list.length)
             $filesContainer
                 .removeClass('drop-zone')
                 .addClass('empty')
-                .addClass('center')
                 .empty()
                 .text('click to attach files')
                 .prepend($loadEmptySvg.clone())
@@ -84,7 +86,7 @@ $(document)
     .on('drop', event => event.preventDefault())
 
 // image attach
-$imagePanel.on('drop', event => {
+$imageContainer.on('drop', event => {
     event.preventDefault()
     file = event.originalEvent.dataTransfer.files[0]
     if (file.type === 'image/png') {
@@ -92,18 +94,20 @@ $imagePanel.on('drop', event => {
         lastDragover -= 100
     }
 })
-$imagePanel.on('click', event => {
+$imageContainer.on('click', event => {
     if (uploadedImage === null)
         $selectFiles.prop('multiple', false).trigger('click')
 })
+$('#clear-image-container-btn').on('click', event => uploadedImage = null)
+$('#open-image-btn').on('click', event => $selectFiles.prop('multiple', false).trigger('click'))
 
 // files attach
-$filesPanel.on('drop', event => {
+$filesContainer.on('drop', event => {
     event.preventDefault()
     getFiles(event.originalEvent.dataTransfer.items)
 })
-$filesPanel.on('click', event => {
-    if (uploadedFiles === null)
+$filesContainer.on('click', event => {
+    if (!uploadedFiles.list.length)
         $selectFiles.prop('multiple', true).trigger('click')
 })
 
@@ -112,7 +116,7 @@ function getImage(image) {
     let fileReader = new FileReader()
     fileReader.onload = event => {
         // decode
-        let [imageArrayBuffer, files] = [event.target.result, null] // decode(event.target.result)
+        let [imageArrayBuffer, files] = [event.target.result, 1] // decode(event.target.result)
         let imageDataUrl = URL.createObjectURL(new Blob([imageArrayBuffer]))
 
         // add image
@@ -125,7 +129,7 @@ function getImage(image) {
 
         // add files
         if (files !== null) {
-            // uploadedFiles = null
+            uploadedFiles.list = []
         }
     }
     fileReader.readAsArrayBuffer(image)
@@ -133,7 +137,7 @@ function getImage(image) {
 
 
 function getFiles(items) {
-    var files = Array()
+    var files = []
     if (items instanceof FileList)
         $.each(items, (i, item) => files.push({[item.name]: item}))
     else
