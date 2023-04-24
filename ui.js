@@ -2,6 +2,8 @@ $(_=>{
 
 $.get('load_empty.svg', data => window.$loadEmptySvg = $($(data).get(0).firstChild))
 $.get('load_drop.svg', data => window.$loadDropSvg = $($(data).get(0).firstChild))
+$.get('file.svg', data => window.$fileSvg = $($(data).get(0).firstChild))
+$.get('folder.svg', data => window.$folderSvg = $($(data).get(0).firstChild))
 
 var $imagePanel = $('#image-panel')
 var $imageContainer = $('#image-container')
@@ -10,8 +12,8 @@ window.uploadedImage = null
 var $filesPanel = $('#files-panel')
 var $filesContainer = $('#files-container')
 window.uploadedFiles = {
-    html: '',
-    list: []
+    html: $('<div>'),
+    dict: {}
 }
 
 var $selectFiles = $('<input>')
@@ -30,52 +32,67 @@ var $selectFiles = $('<input>')
     })
 
 
-var lastDragover
+var lastDragover, imagePanelState = 0, filesPanelState = 0
 setInterval(_ => {
     if (new Date() - lastDragover <= 100) {
-        $imageContainer
-            .addClass('drop-zone')
-            .empty()
-            .text('drop image here')
-            .prepend($loadDropSvg.clone())
+        if (imagePanelState != 1) {
+            $imageContainer
+                .addClass('drop-area')
+                .empty()
+                .text('drop image here')
+                .prepend($loadDropSvg.clone())
+            imagePanelState = 1
+        }
 
-        $filesContainer
-            .addClass('drop-zone')
-            .addClass('center')
-            .data('inner', $filesContainer.children())
-            .empty()
-            .text('drop files here')
-            .prepend($loadDropSvg.clone())
+        if (filesPanelState != 2) {
+            $filesContainer
+                .addClass('drop-area')
+                .addClass('center')
+                .data('inner', $filesContainer.children())
+                .empty()
+                .text('drop files here')
+                .prepend($loadDropSvg.clone())
+            filesPanelState = 2
+        }
     }
     else {
-        if (uploadedImage === null)
+        if (uploadedImage === null && imagePanelState != 3) {
             $imageContainer
-                .removeClass('drop-zone')
+                .removeClass('drop-area')
                 .addClass('empty')
                 .empty()
                 .text('click to attach png')
                 .prepend($loadEmptySvg.clone())
-        else
+            imagePanelState = 3
+        }
+        else if (uploadedImage !== null && imagePanelState != 4) {
             $imageContainer
-                .removeClass('drop-zone')
+                .removeClass('drop-area')
                 .removeClass('empty')
                 .empty()
                 .append(uploadedImage.img)
+            imagePanelState = 4
+        }
 
-        if (!uploadedFiles.list.length)
+        if (!Object.keys(uploadedFiles.dict).length && filesPanelState != 5) {
             $filesContainer
-                .removeClass('drop-zone')
+                .removeClass('drop-area')
                 .addClass('empty')
+                .addClass('center')
                 .empty()
                 .text('click to attach files')
                 .prepend($loadEmptySvg.clone())
-        else
+            filesPanelState = 5
+        }
+        else if (Object.keys(uploadedFiles.dict).length && filesPanelState != 6) {
             $filesContainer
-                .removeClass('drop-zone')
+                .removeClass('drop-area')
                 .removeClass('empty')
                 .removeClass('center')
                 .empty()
-                .append(JSON.stringify(uploadedFiles.list))
+                .append(uploadedFiles.html.children())
+            filesPanelState = 6
+        }
     }
 }, 100)
 $(document)
@@ -107,7 +124,7 @@ $filesContainer.on('drop', event => {
     getFiles(event.originalEvent.dataTransfer.items)
 })
 $filesContainer.on('click', event => {
-    if (!uploadedFiles.list.length)
+    if (!Object.keys(uploadedFiles.dict).length)
         $selectFiles.prop('multiple', true).trigger('click')
 })
 $('#add-files-btn').on('click', event => $selectFiles.prop('multiple', true).trigger('click'))
@@ -130,35 +147,44 @@ function getImage(image) {
         }
 
         // add files
-        if (files !== null) {
-            uploadedFiles.list = []
-        }
+        // if (files !== null) {
+        //     uploadedFiles.dict = []
+        // }
     }
     fileReader.readAsArrayBuffer(image)
 }
 
 
 function getFiles(items) {
-    var files = []
+    var files = {}
     if (items instanceof FileList)
-        $.each(items, (i, item) => files.push({[item.name]: item}))
+        $.each(items, (i, item) => files[item.name] = item)
     else
         $.each(items, (i, item) => recursivelyEntryIterating(files, item.webkitGetAsEntry()))
 
-    uploadedFiles = {
-        html: JSON.stringify(files),
-        list: files
-    }
+    uploadedFiles.dict = {...uploadedFiles.dict, ...files}
+    updateFiles()
 }
 function recursivelyEntryIterating(files_folder, entry) {
     if (entry.isFile)
-        entry.file(fileObject => files_folder.push({[entry.name]: fileObject}))
+        entry.file(fileObject => files_folder[entry.name] = fileObject)
     else if (entry.isDirectory) {
-        var folder_files = []
+        var folder_files = {}
         var folder = {[entry.name]: folder_files}
         entry.createReader().readEntries(entries => $.each(entries, (i, entry) => recursivelyEntryIterating(folder_files, entry)))
-        files_folder.push(folder)
+        files_folder = {...files_folder, ...Object.fromEntries(Object.entries(folder).sort())}
     }
+}
+
+function updateFiles() {
+    $.each(uploadedFiles.dict, (fileName, fileObject) => {
+        uploadedFiles.html.append(
+            $('<div>').addClass('file')
+                .append($(uploadedFiles.dict[fileName] instanceof Array ? $folderSvg.clone() : $fileSvg.clone()).addClass('ico'))
+                .append($('<span>').addClass('name').text(fileName))
+        )
+    })
+    filesPanelState = 5
 }
 
 })
