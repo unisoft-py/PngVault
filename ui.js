@@ -98,7 +98,7 @@ $imageContainer.on('click', event => {
     if (uploadedImage === null)
         $selectFiles.prop('multiple', false).trigger('click')
 })
-$('#clear-image-container-btn').on('click', event => uploadedImage = null)
+$('#delete-image-btn').on('click', event => uploadedImage = null)
 $('#open-image-btn').on('click', event => $selectFiles.prop('multiple', false).trigger('click'))
 
 // files attach
@@ -110,6 +110,8 @@ $filesContainer.on('click', event => {
     if (!uploadedFiles.list.length)
         $selectFiles.prop('multiple', true).trigger('click')
 })
+$('#add-files-btn').on('click', event => $selectFiles.prop('multiple', true).trigger('click'))
+$('#delete-files-btn').on('click', event => {uploadedFiles.dict = []; uploadedFiles.html = $('<div>')})
 
 
 function getImage(image) {
