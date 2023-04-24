@@ -4,6 +4,7 @@ $.get('load_empty.svg', data => window.$loadEmptySvg = $($(data).get(0).firstChi
 $.get('load_drop.svg', data => window.$loadDropSvg = $($(data).get(0).firstChild))
 $.get('file.svg', data => window.$fileSvg = $($(data).get(0).firstChild))
 $.get('folder.svg', data => window.$folderSvg = $($(data).get(0).firstChild))
+$.get('delete_file.svg', data => window.$deleteFileSvg = $($(data).get(0).firstChild))
 
 var $imagePanel = $('#image-panel')
 var $imageContainer = $('#image-container')
@@ -128,7 +129,7 @@ $filesContainer.on('click', event => {
         $selectFiles.prop('multiple', true).trigger('click')
 })
 $('#add-files-btn').on('click', event => $selectFiles.prop('multiple', true).trigger('click'))
-$('#delete-files-btn').on('click', event => {uploadedFiles.dict = []; uploadedFiles.html = $('<div>')})
+$('#delete-files-btn').on('click', event => {uploadedFiles.dict = {}; uploadedFiles.html = $('<div>')})
 
 
 function getImage(image) {
@@ -148,7 +149,7 @@ function getImage(image) {
 
         // add files
         // if (files !== null) {
-        //     uploadedFiles.dict = []
+        //     uploadedFiles.dict = {}
         // }
     }
     fileReader.readAsArrayBuffer(image)
@@ -156,31 +157,39 @@ function getImage(image) {
 
 
 function getFiles(items) {
-    var files = {}
     if (items instanceof FileList)
-        $.each(items, (i, item) => files[item.name] = item)
-    else
-        $.each(items, (i, item) => recursivelyEntryIterating(files, item.webkitGetAsEntry()))
+        $.each(items, (i, item) => uploadedFiles.dict[item.name] = item)
+    else if (items instanceof DataTransferItemList)
+        $.each(items, (i, item) => recursivelyEntryIterating(uploadedFiles.dict, item.webkitGetAsEntry()))
 
-    uploadedFiles.dict = {...uploadedFiles.dict, ...files}
+    
     updateFiles()
 }
 function recursivelyEntryIterating(files_folder, entry) {
     if (entry.isFile)
-        entry.file(fileObject => files_folder[entry.name] = fileObject)
+        entry.file(fileObject => {
+            files_folder[entry.name] = fileObject
+            updateFiles()
+        })
     else if (entry.isDirectory) {
         var folder_files = {}
-        var folder = {[entry.name]: folder_files}
         entry.createReader().readEntries(entries => $.each(entries, (i, entry) => recursivelyEntryIterating(folder_files, entry)))
-        files_folder = {...files_folder, ...Object.fromEntries(Object.entries(folder).sort())}
+        files_folder[entry.name] = folder_files
     }
+    updateFiles()
 }
-
 function updateFiles() {
+    uploadedFiles.html = $('<div>')
     $.each(uploadedFiles.dict, (fileName, fileObject) => {
         uploadedFiles.html.append(
-            $('<div>').addClass('file')
-                .append($(uploadedFiles.dict[fileName] instanceof Array ? $folderSvg.clone() : $fileSvg.clone()).addClass('ico'))
+            (fileObject instanceof File
+                ? $('<div>').addClass('file')
+                    .append($fileSvg.clone().addClass('ico'))
+                : $('<div>').addClass(['file', 'folder'])
+                    .append($folderSvg.clone().addClass('ico')))
+                    .on('click', function(event) {
+
+                    })
                 .append($('<span>').addClass('name').text(fileName))
         )
     })
