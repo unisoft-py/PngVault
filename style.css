@@ -116,6 +116,10 @@ body {
 #files-panel .settings {
     justify-content: flex-end;
 }
+#back-folder-btn {
+    justify-self: flex-start;
+    margin-right: auto;
+}
 #files-container {
     display: flex;
     flex-direction: column;

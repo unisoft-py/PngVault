@@ -12,7 +12,8 @@ window.uploadedImage = null
 var $filesContainer = $('#files-container')
 window.uploadedFiles = {
     html: $('<div>'),
-    dict: {}
+    dict: {},
+    path: '/'
 }
 
 var $selectFiles = $('<input>')
@@ -29,6 +30,7 @@ var $selectFiles = $('<input>')
 
         $(this).val('')
     })
+$('#back-folder-btn').hide()
 
 
 var lastDragover, imagePanelState = 0, filesPanelState = 0
@@ -101,6 +103,7 @@ $(document)
     })
     .on('drop', event => event.preventDefault())
 
+
 // image attach
 $imageContainer.on('drop', event => {
     event.preventDefault()
@@ -126,8 +129,18 @@ $filesContainer.on('click', event => {
     if (!Object.keys(uploadedFiles.dict).length)
         $selectFiles.prop('multiple', true).trigger('click')
 })
+$('#back-folder-btn').on('click', event => {
+    uploadedFiles.path = uploadedFiles.path.replace(/\/[^/]*\/?$/, '/')
+    updateFiles()
+})
 $('#add-files-btn').on('click', event => $selectFiles.prop('multiple', true).trigger('click'))
-$('#delete-files-btn').on('click', event => {uploadedFiles.dict = {}; uploadedFiles.html = $('<div>')})
+$('#delete-files-btn').on('click', event => {
+    uploadedFiles = {
+        html: $('<div>'),
+        dict: {},
+        path: '/'
+    }
+})
 
 
 function getImage(image) {
@@ -202,16 +215,29 @@ function recursivelyEntryIterating(files_folder, entry, filesCounter) {
 }
 function updateFiles() {
     uploadedFiles.html = $('<div>')
-    $.each(uploadedFiles.dict, (fileName, fileObject) => {
+
+    if (uploadedFiles.path == '/')
+        $('#back-folder-btn').hide()
+    else
+        $('#back-folder-btn').show()
+    
+    let folder = uploadedFiles.dict
+    let path = uploadedFiles.path.split('/')
+    for (let folderName of path.slice(1, path.length-1))
+        folder = folder[folderName]
+
+    $.each(folder, (fileName, fileObject) => {
         uploadedFiles.html.append(
             (fileObject instanceof File
-                ? $('<div>').addClass('file')
-                    .append($fileSvg.clone().addClass('ico'))
-                : $('<div>').addClass('file folder')
+                ? ($('<div>').addClass('file')
+                    .append($fileSvg.clone().addClass('ico')))
+                : ($('<div>').addClass('file folder')
                     .append($folderSvg.clone().addClass('ico')))
-                    .on('click', function(event) {
-
-                    })
+                    .on('click', event => {
+                        let folderName = $(event.target).find('.name').text()
+                        uploadedFiles.path += folderName+'/'
+                        updateFiles()
+                    }))
                 .append($('<span>').addClass('name').text(fileName))
         )
     })
