@@ -1,16 +1,14 @@
 $(_=>{
 
-$.get('load_empty.svg', data => window.$loadEmptySvg = $($(data).get(0).firstChild))
 $.get('load_drop.svg', data => window.$loadDropSvg = $($(data).get(0).firstChild))
+$.get('image.svg', data => window.$imageSvg = $($(data).get(0).firstChild))
 $.get('file.svg', data => window.$fileSvg = $($(data).get(0).firstChild))
 $.get('folder.svg', data => window.$folderSvg = $($(data).get(0).firstChild))
 $.get('delete_file.svg', data => window.$deleteFileSvg = $($(data).get(0).firstChild))
 
-var $imagePanel = $('#image-panel')
 var $imageContainer = $('#image-container')
 window.uploadedImage = null
 
-var $filesPanel = $('#files-panel')
 var $filesContainer = $('#files-container')
 window.uploadedFiles = {
     html: $('<div>'),
@@ -62,8 +60,8 @@ setInterval(_ => {
                 .removeClass('drop-area')
                 .addClass('empty')
                 .empty()
-                .text('click to attach png')
-                .prepend($loadEmptySvg.clone())
+                .text('attach png')
+                .prepend($imageSvg.clone())
             imagePanelState = 3
         }
         else if (uploadedImage !== null && imagePanelState != 4) {
@@ -81,8 +79,8 @@ setInterval(_ => {
                 .addClass('empty')
                 .addClass('center')
                 .empty()
-                .text('click to attach files')
-                .prepend($loadEmptySvg.clone())
+                .text('attach files')
+                .prepend($fileSvg.clone())
             filesPanelState = 5
         }
         else if (Object.keys(uploadedFiles.dict).length && filesPanelState != 6) {
