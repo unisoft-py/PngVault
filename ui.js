@@ -136,7 +136,7 @@ function getImage(image) {
     let fileReader = new FileReader()
     fileReader.onload = event => {
         // decode
-        let [imageArrayBuffer, files] = [event.target.result, 1] // decode(event.target.result)
+        let [imageArrayBuffer, files] = [event.target.result, null] // decode(event.target.result)
         let imageDataUrl = URL.createObjectURL(new Blob([imageArrayBuffer]))
 
         // add image
@@ -148,35 +148,61 @@ function getImage(image) {
         }
 
         // add files
-        // if (files !== null) {
-        //     uploadedFiles.dict = {}
-        // }
+        if (files !== null) {
+            uploadedFiles.dict = files
+            updateFiles()
+        }
     }
     fileReader.readAsArrayBuffer(image)
 }
 
 
 function getFiles(items) {
-    if (items instanceof FileList)
-        $.each(items, (i, item) => uploadedFiles.dict[item.name] = item)
-    else if (items instanceof DataTransferItemList)
-        $.each(items, (i, item) => recursivelyEntryIterating(uploadedFiles.dict, item.webkitGetAsEntry()))
-
-    
-    updateFiles()
-}
-function recursivelyEntryIterating(files_folder, entry) {
-    if (entry.isFile)
-        entry.file(fileObject => {
-            files_folder[entry.name] = fileObject
-            updateFiles()
+    let filesCounter = {amount: 0, loaded: 0}
+    if (items instanceof FileList) {
+        filesCounter.amount = items.length
+        $.each(items, (i, file) => {
+            let fileReader = new FileReader()
+            fileReader.onload = event => {
+                console.log(file.name, event.target.result)
+                file.arrayBuffer = event.target.result
+                uploadedFiles.dict[file.name] = file
+                filesCounter.loaded += 1
+            }
+            fileReader.readAsArrayBuffer(file)
         })
+    }
+    else if (items instanceof DataTransferItemList)
+        $.each(items, (i, item) => recursivelyEntryIterating(uploadedFiles.dict, item.webkitGetAsEntry(), filesCounter))
+
+    // update files after loading all of them
+    let intervalId = setInterval(() => {
+        if (filesCounter.loaded == filesCounter.amount) {
+            updateFiles()
+            clearInterval(intervalId)
+        }
+    }, 10);
+}
+function recursivelyEntryIterating(files_folder, entry, filesCounter) {
+    if (entry.isFile) {
+        filesCounter.amount += 1
+        entry.file(fileObject => {
+            let fileReader = new FileReader()
+            fileReader.onload = event => {
+                console.log(entry.name, fileReader.result)
+                fileObject.arrayBuffer = event.target.result
+                files_folder[entry.name] = fileObject
+                filesCounter.loaded += 1
+            }
+            fileReader.readAsArrayBuffer(fileObject)
+        })
+    }
     else if (entry.isDirectory) {
         var folder_files = {}
-        entry.createReader().readEntries(entries => $.each(entries, (i, entry) => recursivelyEntryIterating(folder_files, entry)))
+        entry.createReader().readEntries(entries => $.each(entries, (i, entry) => recursivelyEntryIterating(folder_files, entry, filesCounter)))
         files_folder[entry.name] = folder_files
+        updateFiles()
     }
-    updateFiles()
 }
 function updateFiles() {
     uploadedFiles.html = $('<div>')
@@ -185,7 +211,7 @@ function updateFiles() {
             (fileObject instanceof File
                 ? $('<div>').addClass('file')
                     .append($fileSvg.clone().addClass('ico'))
-                : $('<div>').addClass(['file', 'folder'])
+                : $('<div>').addClass('file folder')
                     .append($folderSvg.clone().addClass('ico')))
                     .on('click', function(event) {
 
