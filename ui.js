@@ -260,7 +260,7 @@ function updateFiles() {
     else
         $('#back-folder-btn').css('visibility', 'visible')
 
-
+    uploadedFiles.html.append($('<div>').addClass('path').text(uploadedFiles.path))
     $.each(getFilesPathDict(), (fileName, fileObject) => {
         uploadedFiles.html.append(
             (fileObject instanceof ArrayBuffer
