@@ -20,7 +20,12 @@ var $selectFiles = $('<input>')
     .attr('type', 'file')
     .on('change', function(event) {
         event.preventDefault()
-        if ($(this).attr('multiple'))
+        if ($(this).attr('webkitdirectory')) {
+            let path = event.target.files[0].webkitRelativePath.replace(/\\/g, '/')
+            let folderName = path.substring(0, path.indexOf('/'))
+            filesPathIterating(folderName, event.target.files)
+        }
+        else if ($(this).attr('multiple'))
             getFiles(event.target.files)
         else {
             let file = event.target.files[0]
@@ -30,7 +35,7 @@ var $selectFiles = $('<input>')
 
         $(this).val('')
     })
-$('#back-folder-btn').hide()
+$('#back-folder-btn').css('visibility', 'hidden')
 
 
 var lastDragover, imagePanelState = 0, filesPanelState = 0
@@ -105,6 +110,10 @@ $(document)
 
 
 // image attach
+var openImage = _ => $selectFiles.attr({
+    'accept': 'image/png',
+    'multiple': false
+}).removeAttr('webkitdirectory').trigger('click')
 $imageContainer.on('drop', event => {
     event.preventDefault()
     file = event.originalEvent.dataTransfer.files[0]
@@ -113,33 +122,35 @@ $imageContainer.on('drop', event => {
         lastDragover -= 100
     }
 })
-$imageContainer.on('click', event => {
-    if (uploadedImage === null)
-        $selectFiles.prop('multiple', false).trigger('click')
-})
+$imageContainer.on('click', event => {if (uploadedImage === null) openImage()})
 $('#delete-image-btn').on('click', event => uploadedImage = null)
-$('#open-image-btn').on('click', event => $selectFiles.prop('multiple', false).trigger('click'))
+$('#open-image-btn').on('click', event => openImage())
 
 // files attach
-$filesContainer.on('drop', event => {
-    event.preventDefault()
-    getFiles(event.originalEvent.dataTransfer.items)
-})
-$filesContainer.on('click', event => {
-    if (!Object.keys(uploadedFiles.dict).length)
-        $selectFiles.prop('multiple', true).trigger('click')
-})
+var openFiles = _ => $selectFiles.attr({
+    'accept': '',
+    'multiple': true
+}).removeAttr('webkitdirectory').trigger('click')
+var openFolder = _ => $selectFiles.attr({
+    'accept': '',
+    'multiple': false,
+    'webkitdirectory': true
+}).trigger('click')
+$filesContainer.on('drop', event => getFiles(event.originalEvent.dataTransfer.items))
+$filesContainer.on('click', event => {if (!Object.keys(uploadedFiles.dict).length) openFiles()})
 $('#back-folder-btn').on('click', event => {
     uploadedFiles.path = uploadedFiles.path.replace(/\/[^/]*\/?$/, '/')
     updateFiles()
 })
-$('#add-files-btn').on('click', event => $selectFiles.prop('multiple', true).trigger('click'))
+$('#upload-files-btn').on('click', event => openFiles())
+$('#upload-folder-btn').on('click', event => openFolder())
 $('#delete-files-btn').on('click', event => {
     uploadedFiles = {
         html: $('<div>'),
         dict: {},
         path: '/'
     }
+    updateFiles()
 })
 
 
@@ -169,22 +180,21 @@ function getImage(image) {
 
 
 function getFiles(items) {
+    let currentFolder = getFilesPathDict()
     let filesCounter = {amount: 0, loaded: 0}
     if (items instanceof FileList) {
         filesCounter.amount = items.length
         $.each(items, (i, file) => {
             let fileReader = new FileReader()
             fileReader.onload = event => {
-                console.log(file.name, event.target.result)
-                file.arrayBuffer = event.target.result
-                uploadedFiles.dict[file.name] = file
+                currentFolder[file.name] = event.target.result
                 filesCounter.loaded += 1
             }
             fileReader.readAsArrayBuffer(file)
         })
     }
     else if (items instanceof DataTransferItemList)
-        $.each(items, (i, item) => recursivelyEntryIterating(uploadedFiles.dict, item.webkitGetAsEntry(), filesCounter))
+        $.each(items, (i, item) => recursivelyEntryIterating(currentFolder, item.webkitGetAsEntry(), filesCounter))
 
     // update files after loading all of them
     let intervalId = setInterval(() => {
@@ -200,8 +210,7 @@ function recursivelyEntryIterating(files_folder, entry, filesCounter) {
         entry.file(fileObject => {
             let fileReader = new FileReader()
             fileReader.onload = event => {
-                fileObject.arrayBuffer = event.target.result
-                files_folder[entry.name] = fileObject
+                files_folder[entry.name] = event.target.result
                 filesCounter.loaded += 1
             }
             fileReader.readAsArrayBuffer(fileObject)
@@ -213,35 +222,68 @@ function recursivelyEntryIterating(files_folder, entry, filesCounter) {
         files_folder[entry.name] = folder_files
     }
 }
+function filesPathIterating(rootFolderName, files) {
+    let filesCounter = {amount: files.length, loaded: 0}
+    let folder = {}
+    $.each(files, (i, file) => {
+        let pathFolders = file.webkitRelativePath.split('/')
+        pathFolders = pathFolders.splice(1, pathFolders.length-2)
+
+        var local_folder = folder
+        for (let folderName of pathFolders) {
+            if (local_folder[folderName] === undefined)
+                local_folder[folderName] = {}
+            local_folder = local_folder[folderName]
+        }
+
+        let fileReader = new FileReader()
+        fileReader.onload = event => {
+            local_folder[file.name] = event.target.result
+            filesCounter.loaded += 1
+        }
+        fileReader.readAsArrayBuffer(file)
+    })
+    
+    let intervalId = setInterval(() => {
+        if (filesCounter.loaded == filesCounter.amount) {
+            uploadedFiles.dict[rootFolderName] = folder
+            updateFiles()
+            clearInterval(intervalId)
+        }
+    }, 10);
+}
 function updateFiles() {
     uploadedFiles.html = $('<div>')
 
     if (uploadedFiles.path == '/')
-        $('#back-folder-btn').hide()
+        $('#back-folder-btn').css('visibility', 'hidden')
     else
-        $('#back-folder-btn').show()
-    
-    let folder = uploadedFiles.dict
-    let path = uploadedFiles.path.split('/')
-    for (let folderName of path.slice(1, path.length-1))
-        folder = folder[folderName]
+        $('#back-folder-btn').css('visibility', 'visible')
 
-    $.each(folder, (fileName, fileObject) => {
+
+    $.each(getFilesPathDict(), (fileName, fileObject) => {
         uploadedFiles.html.append(
-            (fileObject instanceof File
+            (fileObject instanceof ArrayBuffer
                 ? ($('<div>').addClass('file')
                     .append($fileSvg.clone().addClass('ico')))
                 : ($('<div>').addClass('file folder')
                     .append($folderSvg.clone().addClass('ico')))
-                    .on('click', event => {
-                        let folderName = $(event.target).find('.name').text()
+                    .on('click', function(event) {
+                        let folderName = $(this).find('.name').text()
                         uploadedFiles.path += folderName+'/'
                         updateFiles()
                     }))
                 .append($('<span>').addClass('name').text(fileName))
         )
     })
-    filesPanelState = 5
+    filesPanelState = 0
+}
+function getFilesPathDict() {
+    let folder = uploadedFiles.dict
+    let path = uploadedFiles.path.split('/')
+    for (let folderName of path.slice(1, path.length-1))
+        folder = folder[folderName]
+    return folder
 }
 
 })
