@@ -187,7 +187,6 @@ function recursivelyEntryIterating(files_folder, entry, filesCounter) {
         entry.file(fileObject => {
             let fileReader = new FileReader()
             fileReader.onload = event => {
-                console.log(entry.name, fileReader.result)
                 fileObject.arrayBuffer = event.target.result
                 files_folder[entry.name] = fileObject
                 filesCounter.loaded += 1
@@ -199,7 +198,6 @@ function recursivelyEntryIterating(files_folder, entry, filesCounter) {
         var folder_files = {}
         entry.createReader().readEntries(entries => $.each(entries, (i, entry) => recursivelyEntryIterating(folder_files, entry, filesCounter)))
         files_folder[entry.name] = folder_files
-        updateFiles()
     }
 }
 function updateFiles() {
