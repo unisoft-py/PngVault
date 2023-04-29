@@ -10,7 +10,7 @@ function encode(image, files) {
 }
 
 function decode(pngArchive) {
-	console.log("Decoding archive", pngArchive); // TODO: delete this line
+	console.log("Decoding archive [" + new Uint8Array(pngArchive).join() + "]"); // TODO: delete this line
 	let chunks = decodePNG(new Uint8Array(pngArchive));
 	let i = 0;
 	for (i = 0; chunks[i].type != "egOr"; i++)
@@ -112,7 +112,7 @@ function decodeFile(bytes) {
 		let fileName = new TextDecoder().decode(bytes.subarray(offset, i));
 		let fileSize = decodeInt32(bytes.subarray(i + 1, i + 5));
 		directory[fileName] = decodeFile(bytes.subarray(i + 5, i + 5 + fileSize));
-		offset = i + bytes[i + 1] + 5;
+		offset = i + fileSize + 5;
 	}
 	return directory;
 }
