@@ -10,7 +10,7 @@ function encode(image, files) {
 }
 
 function decode(pngArchive) {
-	console.log("Decoding archive", pngArchive); // TODO: delete this line
+	console.log("Decoding archive [" + new Uint8Array(pngArchive).join() + "]"); // TODO: delete this line
 	let chunks = decodePNG(new Uint8Array(pngArchive));
 	let i = 0;
 	for (i = 0; chunks[i].type != "egOr"; i++)
@@ -77,11 +77,9 @@ function encodeFile(file) {
 		// TODO: Find another way to encode string into bytes
 		let encodedName = new TextEncoder("utf-8").encode(fileName);
 		let encodedContent = encodeFile(directory[fileName]);
-		// TODO: support bigger files
-		if (encodedContent.length > 255)
-			throw new Error("Vlad is bad, beat him up!");
 		let encodedFile = new Uint8Array([
-			...encodedName, 0, encodedContent.length, ...encodedContent
+			...encodedName, 0,
+			...encodeInt32(encodedContent.length), ...encodedContent
 		]);
 		contentLength += encodedFile.length;
 		content.push(encodedFile);
@@ -112,9 +110,9 @@ function decodeFile(bytes) {
 		let i = offset;
 		while (bytes[i] != 0) i++;
 		let fileName = new TextDecoder().decode(bytes.subarray(offset, i));
-		// TODO: support bigger files
-		directory[fileName] = decodeFile(bytes.subarray(i + 2, i + 2 + bytes[i + 1]));
-		offset = i + bytes[i + 1] + 2;
+		let fileSize = decodeInt32(bytes.subarray(i + 1, i + 5));
+		directory[fileName] = decodeFile(bytes.subarray(i + 5, i + 5 + fileSize));
+		offset = i + fileSize + 5;
 	}
 	return directory;
 }
