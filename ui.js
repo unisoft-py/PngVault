@@ -170,7 +170,7 @@ $('#download-files-btn').on('click', event => {
         .then(content => saveAs(content, 'chunk.zip'))
 })
 $('#assembly-btn').on('click', event => {
-    let assembledPng = uploadedImage.arrayBuffer // encode(uploadedImage.arrayBuffer, uploadedFiles.dict)
+    let assembledPng = encode(uploadedImage.arrayBuffer, uploadedFiles.dict)
     let blob = new Blob([assembledPng], {type: uploadedImage.file.type})
     saveAs(blob, uploadedImage.file.name)
 })
@@ -182,8 +182,8 @@ $('#delete-files-btn').on('click', event => uploadedFiles = null)
 function getImage(file) {
     let fileReader = new FileReader()
     fileReader.onload = event => {
-        // decode
-        let [imageArrayBuffer, files] = [event.target.result, null] // decode(event.target.result)
+        let decoded = decode(event.target.result);
+        let [imageArrayBuffer, files] = [decoded.image, decoded.files];
         let imageDataUrl = URL.createObjectURL(new Blob([imageArrayBuffer]))
 
         // add image
