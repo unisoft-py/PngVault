@@ -78,6 +78,28 @@ function encodeFile(file) {
 	return encodedDirectory;
 }
 
+function decodeFile(bytes) {
+	if (bytes[0] == 0) {
+		// TODO: ArrayBuffer or Uint8Array?
+		let file = new ArrayBuffer(bytes.length - 1);
+		let fileBytes = new Uint8Array(file);
+		for (let i = 0; i < fileBytes.length; i++)
+			fileBytes[i] = bytes[i + 1];
+		return file;
+	}
+	let offset = 0;
+	let directory = {};
+	while (offset < bytes.length) {
+		let i = offset;
+		while (bytes[i] != 0) i++;
+		let fileName = new TextDecoder().decode(bytes.subarray(offset, i));
+		// TODO: support bigger files
+		directory[fileName] = decodeFile(bytes.subarray(i + 2, i + 2 + bytes[i + 1]));
+		offset = i + bytes[i + 1] + 2;
+	}
+	return directory;
+}
+
 // TODO: Why does not js have builtin CRC32?
 function crc32(bytes) {
 	let a = 0;
