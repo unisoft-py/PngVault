@@ -80,7 +80,8 @@ body {
     display: flex;
     flex-direction: column;
     color: #eee;
-    height: 100%;
+    height: 0;
+    flex-grow: 1;
     width: 100%;
     max-width: 100%;
     max-height: calc(100% - 4rem) !important;
@@ -132,9 +133,6 @@ body {
 #files-panel .settings {
     justify-content: flex-end;
 }
-#back-folder-btn {
-    justify-self: flex-start;
-}
 #download-files-btn {
     visibility: hidden;
     justify-self: flex-start;
@@ -148,6 +146,40 @@ body {
 #assembly-btn:hover {
     color: #1cd81c;
 }
+#path-bar {
+    display: flex;
+    gap: 0.5rem;
+    height: 2.5rem;
+    max-height: max-content;
+    background-color: #222;
+    border-radius: 1rem;
+}
+#back-folder-btn {
+    cursor: pointer;
+    user-select: none;
+    height: 100%;
+    width: fit-content;
+    padding: 0.4rem;
+    color: #777;
+    transition: color .05s linear;
+}
+#back-folder-btn:hover {
+    color: #aaa;
+}
+#back-folder-btn svg {
+    aspect-ratio: 1/1;
+    height: 100%;
+}
+#path-str {
+    color: #aaa;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    word-wrap: break-word;
+    margin: auto 0;
+    padding: 0.01rem;
+    max-width: 100%;
+    height: fit-content;
+}
 #files-container {
     display: flex;
     flex-direction: column;
@@ -156,15 +188,6 @@ body {
     max-width: 100%;
 }
 
-.path {
-    border-radius: 0.5rem;
-    font-family: sans-serif;
-    font-size: 1.3rem;
-    padding: 0.5rem 1rem;
-    margin-bottom: 1rem;
-    word-wrap: break-word;
-    background-color: #252525;
-}
 .folder {
     cursor: pointer;
 }

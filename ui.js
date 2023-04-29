@@ -10,6 +10,7 @@ $.get('files/delete_file.svg', data => window.$deleteFileSvg = $($(data).get(0).
 var $imageContainer = $('#image-container')
 window.uploadedImage = null
 
+$('#path-bar').hide()
 var $filesContainer = $('#files-container')
 window.uploadedFiles = null
 
@@ -32,7 +33,6 @@ var $selectFiles = $('<input>')
 
         $(this).val('')
     })
-$('#back-folder-btn').css('visibility', 'hidden')
 
 
 var lastDragover, imagePanelState = 0, filesPanelState = 0
@@ -81,6 +81,7 @@ setInterval(_ => {
 
         if (uploadedFiles === null && filesPanelState != 5) {
             $('#download-files-btn').css('visibility', 'hidden')
+            $('#path-bar').hide()
             $filesContainer
                 .removeClass('drop-area')
                 .addClass('empty')
@@ -92,6 +93,7 @@ setInterval(_ => {
         }
         else if (uploadedFiles !== null && filesPanelState != 6) {
             $('#download-files-btn').css('visibility', 'visible')
+            $('#path-bar').show()
             $filesContainer
                 .removeClass('drop-area')
                 .removeClass('empty')
@@ -302,7 +304,8 @@ function updateFiles() {
     else
         $('#back-folder-btn').css('visibility', 'visible')
 
-    uploadedFiles.html.append($('<div>').addClass('path').text(uploadedFiles.path))
+    $('#path-bar').show()
+    $('#path-str').text(uploadedFiles.path)
     $.each(getFilesPathDict(), (fileName, fileObject) => {
         uploadedFiles.html.append(
             (fileObject instanceof ArrayBuffer

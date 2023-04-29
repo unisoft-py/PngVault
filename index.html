@@ -44,11 +44,6 @@
         </div>
         <div id="files-panel" class="panel">
             <div class="settings">
-                <div id="back-folder-btn" class="button">
-                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 12H4M4 12L10 6M4 12L10 18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
                 <div id="download-files-btn" class="button">
                     <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 19H5C3.89543 19 3 18.1046 3 17V7C3 5.89543 3.89543 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C20.1046 7 21 7.89543 21 9V11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -81,6 +76,14 @@
                         <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
+            </div>
+            <div id="path-bar">
+                <div id="back-folder-btn">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 12H4M4 12L10 6M4 12L10 18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span id="path-str">/string</span>
             </div>
             <div id="files-container" class="container empty center"></div>
         </div>
