@@ -118,10 +118,11 @@ body {
     align-items: center;
 }
 #image-container img {
-    max-height: 100%;
-    max-width: 100%;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
     border-radius: 1rem;
-    border: 3px solid #333;
 }
 
 #files-panel {
