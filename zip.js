@@ -5,6 +5,8 @@
 function encode(image, files) {
 	console.log("Encoding files", files, "into", image); // TODO: delete this line
 	let chunks = decodePNG(new Uint8Array(image));
+	// TODO: I don't like this, but Egor has asked me to do this
+	if (chunks == null) return null;
 	let archive = { type: "egOr", content: encodeFile(files) };
 	return encodePNG([chunks[0]].concat([archive], chunks.slice(1)));
 }
@@ -12,6 +14,8 @@ function encode(image, files) {
 function decode(pngArchive) {
 	console.log("Decoding archive [" + new Uint8Array(pngArchive).join() + "]"); // TODO: delete this line
 	let chunks = decodePNG(new Uint8Array(pngArchive));
+	// TODO: I don't like this, but Egor has asked me to do this
+	if (chunks == null) return { image: null, files: null };
 	let i = 0;
 	for (i = 0; chunks[i].type != "egOr"; i++)
 		if (i + 1 == chunks.length)
@@ -52,6 +56,9 @@ function encodePNG(chunks) {
 }
 
 function decodePNG(bytes) {
+	for (let i = 0; i < 8; i++)
+		if (png[i] != [137, 80, 78, 71, 13, 10, 26, 10][i])
+			return null;
 	let offset = 8;
 	let chunks = [];
 	while (offset < bytes.length) {
