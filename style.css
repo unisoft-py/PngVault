@@ -57,14 +57,23 @@ body {
     height: 100%;
     color: #666;
     padding: 0.3rem;
-    transition: color .05s linear;
+    transition: color .08s linear;
 }
 .settings .button:hover {
     color: #ccc;
 }
 #delete-image-btn:hover,
 #delete-files-btn:hover {
-    color: #bd1c1c;
+    color: #b7352a;
+}
+#open-image-btn:hover,
+#upload-files-btn:hover,
+#upload-folder-btn:hover {
+    color: #3d64bd;
+}
+#download-image-btn:hover,
+#download-files-btn:hover {
+    color: #479139;
 }
 
 .container {
