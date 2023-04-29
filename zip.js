@@ -57,7 +57,7 @@ function encodePNG(chunks) {
 
 function decodePNG(bytes) {
 	for (let i = 0; i < 8; i++)
-		if (png[i] != [137, 80, 78, 71, 13, 10, 26, 10][i])
+		if (bytes[i] != [137, 80, 78, 71, 13, 10, 26, 10][i])
 			return null;
 	let offset = 8;
 	let chunks = [];
