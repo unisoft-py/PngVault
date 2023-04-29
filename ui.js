@@ -80,7 +80,7 @@ setInterval(_ => {
         }
 
         if (uploadedFiles === null && filesPanelState != 5) {
-            $('#download-files-btn').hide()
+            $('#download-files-btn').css('visibility', 'hidden')
             $filesContainer
                 .removeClass('drop-area')
                 .addClass('empty')
@@ -91,7 +91,7 @@ setInterval(_ => {
             filesPanelState = 5
         }
         else if (uploadedFiles !== null && filesPanelState != 6) {
-            $('#download-files-btn').show()
+            $('#download-files-btn').css('visibility', 'visible')
             $filesContainer
                 .removeClass('drop-area')
                 .removeClass('empty')
@@ -100,6 +100,11 @@ setInterval(_ => {
                 .append(uploadedFiles.html.children())
             filesPanelState = 6
         }
+
+        if (uploadedImage === null || uploadedFiles === null)
+            $('#assembly-btn').css('visibility', 'hidden')
+        else
+            $('#assembly-btn').css('visibility', 'visible')
     }
 }, 100)
 $(document)
@@ -163,6 +168,11 @@ $('#download-files-btn').on('click', event => {
     fillArchive(archive, '', uploadedFiles.dict)
     archive.generateAsync({type: 'blob'})
         .then(content => saveAs(content, 'chunk.zip'))
+})
+$('#assembly-btn').on('click', event => {
+    let assembledPng = uploadedImage.arrayBuffer // encode(uploadedImage.arrayBuffer, uploadedFiles.dict)
+    let blob = new Blob([assembledPng], {type: uploadedImage.file.type})
+    saveAs(blob, uploadedImage.file.name)
 })
 $('#upload-files-btn').on('click', event => openFiles())
 $('#upload-folder-btn').on('click', event => openFolder())

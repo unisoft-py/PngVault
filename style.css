@@ -73,7 +73,7 @@ body {
 }
 #download-image-btn:hover,
 #download-files-btn:hover {
-    color: #479139;
+    color: #179b17;
 }
 
 .container {
@@ -135,9 +135,17 @@ body {
     justify-self: flex-start;
 }
 #download-files-btn {
-    display: none;
+    visibility: hidden;
     justify-self: flex-start;
-    margin-right: auto;
+}
+#assembly-btn {
+    visibility: hidden;
+    margin: 0 auto;
+    padding: 0.1rem;
+    color: #179b17;
+}
+#assembly-btn:hover {
+    color: #1cd81c;
 }
 #files-container {
     display: flex;
