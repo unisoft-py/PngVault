@@ -32,6 +32,19 @@ function encodePNG(chunks) {
 	return png;
 }
 
+function decodePNG(bytes) {
+	let offset = 8;
+	let chunks = [];
+	while (offset < bytes.length) {
+		let chunkSize = decodeInt32(bytes.subarray(offset, offset + 4));
+		let type = new TextDecoder().decode(bytes.subarray(offset + 4, offset + 8));
+		let content = bytes.subarray(offset + 8, offset + 8 + chunkSize)
+		offset += 8 + chunkSize + 4;
+		chunks.push({ type, content });
+	}
+	return chunks;
+}
+
 // TODO: Why does not js have builtin CRC32?
 function crc32(bytes) {
 	let a = 0;
@@ -57,4 +70,13 @@ function encodeInt32(number) {
 		(number & 0x0000ff00) >> 8,
 		(number & 0x000000ff)
 	]);
+}
+
+function decodeInt32(bytes) {
+	return (
+		(bytes[0] << 24) +
+		(bytes[1] << 16) +
+		(bytes[2] << 8) +
+		bytes[3]
+	);
 }
