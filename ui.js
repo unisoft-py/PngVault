@@ -80,6 +80,7 @@ setInterval(_ => {
         }
 
         if (uploadedFiles === null && filesPanelState != 5) {
+            $('#download-files-btn').hide()
             $filesContainer
                 .removeClass('drop-area')
                 .addClass('empty')
@@ -90,6 +91,7 @@ setInterval(_ => {
             filesPanelState = 5
         }
         else if (uploadedFiles !== null && filesPanelState != 6) {
+            $('#download-files-btn').show()
             $filesContainer
                 .removeClass('drop-area')
                 .removeClass('empty')
@@ -140,18 +142,31 @@ var openFolder = _ => $selectFiles.attr({
     'multiple': false,
     'webkitdirectory': true
 }).trigger('click')
+function fillArchive(zip, path, data) {
+    if (data instanceof ArrayBuffer)
+        zip.file(path, data)
+    else {
+        var folder = zip.folder(path)
+        for (var name in data)
+            fillArchive(folder, name, data[name])
+    }
+}
 $filesContainer.on('drop', event => getFiles(event.originalEvent.dataTransfer.items))
 $filesContainer.on('click', event => {if (uploadedFiles === null) openFiles()})
 $('#back-folder-btn').on('click', event => {
     uploadedFiles.path = uploadedFiles.path.replace(/\/[^/]*\/?$/, '/')
     updateFiles()
 })
+$('#download-files-btn').on('click', event => {
+    let archive = new JSZip()
+    console.log(archive)
+    fillArchive(archive, '', uploadedFiles.dict)
+    archive.generateAsync({type: 'blob'})
+        .then(content => saveAs(content, 'chunk.zip'))
+})
 $('#upload-files-btn').on('click', event => openFiles())
 $('#upload-folder-btn').on('click', event => openFolder())
-$('#delete-files-btn').on('click', event => {
-    uploadedFiles = null
-    updateFiles()
-})
+$('#delete-files-btn').on('click', event => uploadedFiles = null)
 
 
 function getImage(file) {

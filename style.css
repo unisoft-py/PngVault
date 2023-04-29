@@ -57,12 +57,14 @@ body {
     height: 100%;
     color: #666;
     padding: 0.3rem;
-}
-.settings .button svg {
     transition: color .05s linear;
 }
-.settings .button svg:hover {
+.settings .button:hover {
     color: #ccc;
+}
+#delete-image-btn:hover,
+#delete-files-btn:hover {
+    color: #bd1c1c;
 }
 
 .container {
@@ -121,6 +123,10 @@ body {
     justify-content: flex-end;
 }
 #back-folder-btn {
+    justify-self: flex-start;
+}
+#download-files-btn {
+    display: none;
     justify-self: flex-start;
     margin-right: auto;
 }
