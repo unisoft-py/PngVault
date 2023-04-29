@@ -10,11 +10,7 @@ var $imageContainer = $('#image-container')
 window.uploadedImage = null
 
 var $filesContainer = $('#files-container')
-window.uploadedFiles = {
-    html: $('<div>'),
-    dict: {},
-    path: '/'
-}
+window.uploadedFiles = null
 
 var $selectFiles = $('<input>')
     .attr('type', 'file')
@@ -80,7 +76,7 @@ setInterval(_ => {
             imagePanelState = 4
         }
 
-        if (!Object.keys(uploadedFiles.dict).length && filesPanelState != 5) {
+        if (uploadedFiles === null && filesPanelState != 5) {
             $filesContainer
                 .removeClass('drop-area')
                 .addClass('empty')
@@ -90,7 +86,7 @@ setInterval(_ => {
                 .prepend($fileSvg.clone())
             filesPanelState = 5
         }
-        else if (Object.keys(uploadedFiles.dict).length && filesPanelState != 6) {
+        else if (uploadedFiles !== null && filesPanelState != 6) {
             $filesContainer
                 .removeClass('drop-area')
                 .removeClass('empty')
@@ -137,7 +133,7 @@ var openFolder = _ => $selectFiles.attr({
     'webkitdirectory': true
 }).trigger('click')
 $filesContainer.on('drop', event => getFiles(event.originalEvent.dataTransfer.items))
-$filesContainer.on('click', event => {if (!Object.keys(uploadedFiles.dict).length) openFiles()})
+$filesContainer.on('click', event => {if (uploadedFiles === null) openFiles()})
 $('#back-folder-btn').on('click', event => {
     uploadedFiles.path = uploadedFiles.path.replace(/\/[^/]*\/?$/, '/')
     updateFiles()
@@ -145,11 +141,7 @@ $('#back-folder-btn').on('click', event => {
 $('#upload-files-btn').on('click', event => openFiles())
 $('#upload-folder-btn').on('click', event => openFolder())
 $('#delete-files-btn').on('click', event => {
-    uploadedFiles = {
-        html: $('<div>'),
-        dict: {},
-        path: '/'
-    }
+    uploadedFiles = null
     updateFiles()
 })
 
@@ -171,16 +163,31 @@ function getImage(image) {
 
         // add files
         if (files === null)
-            uploadedFiles.dict = files
-        else
-            uploadedFiles.dict = {}
-        updateFiles()
+            uploadedFiles = null
+        else {
+            uploadedFiles = {
+                html: $('<div>'),
+                dict: files,
+                path: '/'
+            }
+            updateFiles()
+        }
     }
     fileReader.readAsArrayBuffer(image)
 }
 
 
+function autoClearUploadedFiles() {
+    if (uploadedFiles === null)
+        uploadedFiles = {
+            html: $('<div>'),
+            dict: {},
+            path: '/'
+        }
+}
 function getFiles(items) {
+    autoClearUploadedFiles()
+    
     let currentFolder = getFilesPathDict()
     let filesCounter = {amount: 0, loaded: 0}
     if (items instanceof FileList) {
@@ -224,6 +231,8 @@ function recursivelyEntryIterating(files_folder, entry, filesCounter) {
     }
 }
 function filesPathIterating(rootFolderName, files) {
+    autoClearUploadedFiles()
+    
     let filesCounter = {amount: files.length, loaded: 0}
     let folder = {}
     $.each(files, (i, file) => {
