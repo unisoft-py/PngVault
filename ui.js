@@ -126,12 +126,7 @@ $('#delete-image-btn').on('click', event => uploadedImage = null)
 $('#open-image-btn').on('click', event => openImage())
 $('#download-image-btn').on('click', event => {
     let blob = new Blob([uploadedImage.arrayBuffer], {type: uploadedImage.file.type})
-    let url = URL.createObjectURL(blob)
-    let link = $('<a>')
-        .attr('href', url)
-        .prop('download', uploadedImage.file.name)
-    link.get(0).click()
-    link.remove()
+    saveAs(blob, uploadedImage.file.name)
 })
 
 
