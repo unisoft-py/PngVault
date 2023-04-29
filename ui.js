@@ -170,10 +170,11 @@ function getImage(image) {
         }
 
         // add files
-        if (files !== null) {
+        if (files === null)
             uploadedFiles.dict = files
-            updateFiles()
-        }
+        else
+            uploadedFiles.dict = {}
+        updateFiles()
     }
     fileReader.readAsArrayBuffer(image)
 }
