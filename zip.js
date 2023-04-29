@@ -2,6 +2,25 @@
 // TODO: Use modules!
 // TODO: To semicolon or not to semicolon?
 
+function encode(image, files) {
+	console.log("Encoding files", files, "into", image); // TODO: delete this line
+	let chunks = decodePNG(new Uint8Array(image));
+	let archive = { type: "egOr", content: encodeFile(files) };
+	return encodePNG([chunks[0]].concat([archive], chunks.subarray(1)));
+}
+
+function decode(pngArchive) {
+	console.log("Decoding archive", pngArchive); // TODO: delete this line
+	let chunks = decodePNG(pngArchive);
+	let i = 0;
+	// TODO: support png without egOr chunk
+	// TODO: ^- upper todo is very important !CRITICAL TODO
+	while (chunks[i].type != "egOr") i++;
+	let files = decodeFile(chunks.pop(i).content);
+	let image = encodePNG(chunks);
+	return { image, files };
+}
+
 function encodePNG(chunks) {
 	let encodedChunks = [];
 	let contentLength = 0;
