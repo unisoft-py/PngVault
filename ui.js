@@ -196,9 +196,7 @@ function getImage(file) {
         }
 
         // add files
-        if (files === null)
-            uploadedFiles = null
-        else {
+        if (files !== null) {
             uploadedFiles = {
                 html: $('<div>'),
                 dict: files,
