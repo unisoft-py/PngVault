@@ -6,17 +6,17 @@ function encode(image, files) {
 	console.log("Encoding files", files, "into", image); // TODO: delete this line
 	let chunks = decodePNG(new Uint8Array(image));
 	let archive = { type: "egOr", content: encodeFile(files) };
-	return encodePNG([chunks[0]].concat([archive], chunks.subarray(1)));
+	return encodePNG([chunks[0]].concat([archive], chunks.slice(1)));
 }
 
 function decode(pngArchive) {
 	console.log("Decoding archive", pngArchive); // TODO: delete this line
-	let chunks = decodePNG(pngArchive);
+	let chunks = decodePNG(new Uint8Array(pngArchive));
 	let i = 0;
-	// TODO: support png without egOr chunk
-	// TODO: ^- upper todo is very important !CRITICAL TODO
-	while (chunks[i].type != "egOr") i++;
-	let files = decodeFile(chunks.pop(i).content);
+	for (i = 0; chunks[i].type != "egOr"; i++)
+		if (i + 1 == chunks.length)
+			return { image: pngArchive, files: null };
+	let files = decodeFile(chunks.splice(i, 1)[0].content);
 	let image = encodePNG(chunks);
 	return { image, files };
 }
@@ -48,7 +48,7 @@ function encodePNG(chunks) {
 		png.set(chunk, offset);
 		offset += chunk.length;
 	});
-	return png;
+	return png.buffer;
 }
 
 function decodePNG(bytes) {
