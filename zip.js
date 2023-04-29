@@ -45,6 +45,39 @@ function decodePNG(bytes) {
 	return chunks;
 }
 
+function encodeFile(file) {
+	// TODO: ArrayBuffer or Uint8Array?
+	if (file.constructor == ArrayBuffer)
+		return new Uint8Array([0, ...(new Uint8Array(file))]);
+	// TODO: Are directories files?
+	let directory = file;
+	let content = [];
+	// TODO: Use more elegant length calculation
+	let contentLength = 0;
+	for (let fileName in directory) {
+		// TODO: Find another way to encode string into bytes
+		let encodedName = new TextEncoder("utf-8").encode(fileName);
+		let encodedContent = encodeFile(directory[fileName]);
+		// TODO: support bigger files
+		if (encodedContent.length > 255)
+			throw new Error("Vlad is bad, beat him up!");
+		let encodedFile = new Uint8Array([
+			...encodedName, 0, encodedContent.length, ...encodedContent
+		]);
+		contentLength += encodedFile.length;
+		content.push(encodedFile);
+	}
+	// TODO: Implement offset calculation using reduce() equivalent
+	let offset = 0;
+	let encodedDirectory = new Uint8Array(contentLength);
+	// TODO: Implement separate function for Uint8Array concatenation
+	content.forEach(encodeFile => {
+		encodedDirectory.set(encodeFile, offset);
+		offset += encodeFile.length;
+	});
+	return encodedDirectory;
+}
+
 // TODO: Why does not js have builtin CRC32?
 function crc32(bytes) {
 	let a = 0;
