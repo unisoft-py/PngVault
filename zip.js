@@ -108,7 +108,7 @@ function decodeFile(bytes) {
 	let directory = {};
 	while (offset < bytes.length) {
 		let i = offset;
-		while (bytes[i] != 0) i++;
+		while (bytes[i] ?? 0 != 0) i++;
 		let fileName = new TextDecoder().decode(bytes.subarray(offset, i));
 		let fileSize = decodeInt32(bytes.subarray(i + 1, i + 5));
 		directory[fileName] = decodeFile(bytes.subarray(i + 5, i + 5 + fileSize));
