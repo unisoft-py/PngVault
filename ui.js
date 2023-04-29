@@ -6,6 +6,7 @@ $.get('files/file.svg', data => window.$fileSvg = $($(data).get(0).firstChild))
 $.get('files/folder.svg', data => window.$folderSvg = $($(data).get(0).firstChild))
 $.get('files/delete_file.svg', data => window.$deleteFileSvg = $($(data).get(0).firstChild))
 
+
 var $imageContainer = $('#image-container')
 window.uploadedImage = null
 
@@ -59,6 +60,7 @@ setInterval(_ => {
     }
     else {
         if (uploadedImage === null && imagePanelState != 3) {
+            $('#download-image-btn').hide()
             $imageContainer
                 .removeClass('drop-area')
                 .addClass('empty')
@@ -68,6 +70,7 @@ setInterval(_ => {
             imagePanelState = 3
         }
         else if (uploadedImage !== null && imagePanelState != 4) {
+            $('#download-image-btn').show()
             $imageContainer
                 .removeClass('drop-area')
                 .removeClass('empty')
@@ -121,6 +124,16 @@ $imageContainer.on('drop', event => {
 $imageContainer.on('click', event => {if (uploadedImage === null) openImage()})
 $('#delete-image-btn').on('click', event => uploadedImage = null)
 $('#open-image-btn').on('click', event => openImage())
+$('#download-image-btn').on('click', event => {
+    let blob = new Blob([uploadedImage.arrayBuffer], {type: uploadedImage.file.type})
+    let url = URL.createObjectURL(blob)
+    let link = $('<a>')
+        .attr('href', url)
+        .prop('download', uploadedImage.file.name)
+    link.get(0).click()
+    link.remove()
+})
+
 
 // files attach
 var openFiles = _ => $selectFiles.attr({
@@ -146,7 +159,7 @@ $('#delete-files-btn').on('click', event => {
 })
 
 
-function getImage(image) {
+function getImage(file) {
     let fileReader = new FileReader()
     fileReader.onload = event => {
         // decode
@@ -157,8 +170,9 @@ function getImage(image) {
         let image = $('<img>').attr('src', imageDataUrl)
         $imageContainer.empty().append(image)
         uploadedImage = {
+            file: file,
             img: image,
-            imageArrayBuffer: imageArrayBuffer
+            arrayBuffer: imageArrayBuffer
         }
 
         // add files
@@ -173,7 +187,7 @@ function getImage(image) {
             updateFiles()
         }
     }
-    fileReader.readAsArrayBuffer(image)
+    fileReader.readAsArrayBuffer(file)
 }
 
 
@@ -210,7 +224,7 @@ function getFiles(items) {
             updateFiles()
             clearInterval(intervalId)
         }
-    }, 10);
+    }, 10)
 }
 function recursivelyEntryIterating(files_folder, entry, filesCounter) {
     if (entry.isFile) {
@@ -260,7 +274,7 @@ function filesPathIterating(rootFolderName, files) {
             updateFiles()
             clearInterval(intervalId)
         }
-    }, 10);
+    }, 10)
 }
 function updateFiles() {
     uploadedFiles.html = $('<div>')

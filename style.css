@@ -96,6 +96,11 @@ body {
     border-top-right-radius: 3rem;
     border-bottom-right-radius: 3rem;
 }
+#download-image-btn {
+    display: none;
+    justify-self: flex-end;
+    margin-left: auto;
+}
 #image-container {
     display: flex;
     justify-content: center;
