@@ -148,7 +148,6 @@ body {
 }
 #path-bar {
     display: flex;
-    gap: 0.5rem;
     height: 2.5rem;
     max-height: max-content;
     background-color: #222;
@@ -204,6 +203,9 @@ body {
 .file:hover {
     background-color: #262626;
 }
+.file:hover .delete-btn {
+    visibility: visible;
+}
 .file .ico {
     user-select: none;
     height: 100%;
@@ -216,6 +218,23 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.file .delete-btn {
+    visibility: hidden;
+    cursor: pointer;
+    justify-self: flex-end;
+    margin-left: auto;
+    padding: 1rem;
+    height: 100%;
+    width: fit-content;
+}
+.file .delete-btn svg:hover {
+    color: #b7352a;
+}
+.file .delete-btn svg {
+    aspect-ratio: 1/1;
+    height: 100%;
+    color: #444;
 }
 
 

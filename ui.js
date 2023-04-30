@@ -319,6 +319,14 @@ function updateFiles() {
                         updateFiles()
                     }))
                 .append($('<span>').addClass('name').text(fileName))
+                .append($('<div>').addClass('delete-btn')
+                    .append($deleteFileSvg.clone())
+                    .on('click', function(event) {
+                        let fileName = $(this).siblings('.name').text()
+                        delete getFilesPathDict()[fileName]
+                        $(this).closest('.file').remove()
+                    })
+                )
         )
     })
     filesPanelState = 0
