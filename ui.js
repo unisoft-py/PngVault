@@ -38,16 +38,16 @@ var $selectFiles = $('<input>')
 var lastDragover, imagePanelState = 0, filesPanelState = 0
 setInterval(_ => {
     if (new Date() - lastDragover <= 100) {
-        if (imagePanelState != 1) {
+        if (imagePanelState != 1) { // костыль
             $imageContainer
                 .addClass('drop-area')
                 .empty()
                 .text('drop image here')
                 .prepend($loadDropSvg.clone())
-            imagePanelState = 1
+            imagePanelState = 1 // костыль
         }
 
-        if (filesPanelState != 2) {
+        if (filesPanelState != 2) { // костыль
             $filesContainer
                 .addClass('drop-area')
                 .addClass('center')
@@ -55,11 +55,11 @@ setInterval(_ => {
                 .empty()
                 .text('drop files here')
                 .prepend($loadDropSvg.clone())
-            filesPanelState = 2
+            filesPanelState = 2 // костыль
         }
     }
     else {
-        if (uploadedImage === null && imagePanelState != 3) {
+        if (uploadedImage === null && imagePanelState != 3) { // костыль
             $('#download-image-btn').hide()
             $imageContainer
                 .removeClass('drop-area')
@@ -67,19 +67,19 @@ setInterval(_ => {
                 .empty()
                 .text('attach png')
                 .prepend($imageSvg.clone())
-            imagePanelState = 3
+            imagePanelState = 3 // костыль
         }
-        else if (uploadedImage !== null && imagePanelState != 4) {
+        else if (uploadedImage !== null && imagePanelState != 4) { // костыль
             $('#download-image-btn').show()
             $imageContainer
                 .removeClass('drop-area')
                 .removeClass('empty')
                 .empty()
                 .append(uploadedImage.img)
-            imagePanelState = 4
+            imagePanelState = 4 // костыль
         }
 
-        if (uploadedFiles === null && filesPanelState != 5) {
+        if (uploadedFiles === null && filesPanelState != 5) { // костыль
             $('#download-files-btn').css('visibility', 'hidden')
             $('#path-bar').hide()
             $filesContainer
@@ -89,9 +89,9 @@ setInterval(_ => {
                 .empty()
                 .text('attach files')
                 .prepend($fileSvg.clone())
-            filesPanelState = 5
+            filesPanelState = 5 // костыль
         }
-        else if (uploadedFiles !== null && filesPanelState != 6) {
+        else if (uploadedFiles !== null && filesPanelState != 6) { // костыль
             $('#download-files-btn').css('visibility', 'visible')
             $('#path-bar').show()
             $filesContainer
@@ -100,7 +100,7 @@ setInterval(_ => {
                 .removeClass('center')
                 .empty()
                 .append(uploadedFiles.html.children())
-            filesPanelState = 6
+            filesPanelState = 6 // костыль
         }
 
         if (uploadedImage === null || uploadedFiles === null)
@@ -186,6 +186,7 @@ function getImage(file) {
     fileReader.onload = event => {
         let decoded = decode(event.target.result);
         let [imageArrayBuffer, files] = [decoded.image, decoded.files];
+        if (imageArrayBuffer === null) return console.log('isn\'t a png')
         let imageDataUrl = URL.createObjectURL(new Blob([imageArrayBuffer]))
 
         // add image
