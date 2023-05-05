@@ -184,8 +184,8 @@ $('#delete-files-btn').on('click', event => uploadedFiles = null)
 function getImage(file) {
     let fileReader = new FileReader()
     fileReader.onload = event => {
-        let decoded = decode(event.target.result);
-        let [imageArrayBuffer, files] = [decoded.image, decoded.files];
+        let decoded = decode(event.target.result)
+        let [imageArrayBuffer, files] = [decoded.image, decoded.files]
         if (imageArrayBuffer === null) return console.log('isn\'t a png')
         let imageDataUrl = URL.createObjectURL(new Blob([imageArrayBuffer]))
 
@@ -315,7 +315,8 @@ function updateFiles() {
         if (isFile)
             fileElement.append($fileSvg.clone().addClass('ico'))
         else
-            fileElement.addClass('folder').append($folderSvg.clone().addClass('ico'))
+            fileElement.addClass('folder')
+                .append($folderSvg.clone().addClass('ico'))
                 .on('click', function(event) {
                     let folderName = $(this).find('.name').text()
                     uploadedFiles.path += folderName+'/'
@@ -333,7 +334,21 @@ function updateFiles() {
                     let fileName = $(this).parent().siblings('.name').text()
                     let fileArrayBuffer = getFilesPathDict()[fileName]
                     let mimeType = getMimeType(fileName)
-                    window.open(URL.createObjectURL(new Blob([fileArrayBuffer], {type: mimeType})), '_blank')
+                    console.log(fileName, mimeType)
+                    let fileBlob = new Blob([fileArrayBuffer], {type: mimeType})
+                    let fileObject = new File([fileBlob], fileName, {type: mimeType})
+                    let fileURL = URL.createObjectURL(fileObject)
+                    
+                    if (
+                        !mimeType.startsWith('application') ||
+                        mimeType == 'application/pdf'
+                    )
+                        window.open(fileURL)
+                    else
+                        $('<a>')
+                            .attr('href', fileURL)
+                            .prop('download', fileName)
+                            .get(0).click()
                 })
             )
         // add delete button
