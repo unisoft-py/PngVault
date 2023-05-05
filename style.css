@@ -203,7 +203,7 @@ body {
 .file:hover {
     background-color: #262626;
 }
-.file:hover .delete-btn {
+.file:hover .buttons-container {
     visibility: visible;
 }
 .file .ico {
@@ -213,28 +213,37 @@ body {
 }
 .file .name {
     max-width: 30rem;
+    flex-grow: 1;
     font-family: sans-serif;
     font-size: 1.3rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.file .delete-btn {
-    visibility: hidden;
-    cursor: pointer;
+.file .buttons-container {
     justify-self: flex-end;
+    visibility: hidden;
     margin-left: auto;
-    padding: 1rem;
+    height: 100%;
+    display: flex;
+    padding-right: 1rem;
+}
+.file .button {
+    cursor: pointer;
+    padding: 1rem 0.25rem;
     height: 100%;
     width: fit-content;
 }
-.file .delete-btn svg:hover {
-    color: #b7352a;
+.file .button:hover svg {
+    color: #777;
 }
-.file .delete-btn svg {
+.file .button svg {
     aspect-ratio: 1/1;
     height: 100%;
     color: #444;
+}
+.file .delete-btn:hover svg {
+    color: #b7352a;
 }
 
 

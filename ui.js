@@ -167,7 +167,6 @@ $('#back-folder-btn').on('click', event => {
 })
 $('#download-files-btn').on('click', event => {
     let archive = new JSZip()
-    console.log(archive)
     fillArchive(archive, '', uploadedFiles.dict)
     archive.generateAsync({type: 'blob'})
         .then(content => saveAs(content, 'chunk.zip'))
@@ -309,26 +308,37 @@ function updateFiles() {
     $('#path-bar').show()
     $('#path-str').text(uploadedFiles.path)
     $.each(getFilesPathDict(), (fileName, fileObject) => {
-        uploadedFiles.html.append(
-            (fileObject instanceof ArrayBuffer
-                ? ($('<div>').addClass('file')
-                    .append($fileSvg.clone().addClass('ico')))
-                : ($('<div>').addClass('file folder')
-                    .append($folderSvg.clone().addClass('ico')))
-                    .on('click', function(event) {
-                        let folderName = $(this).find('.name').text()
-                        uploadedFiles.path += folderName+'/'
-                        updateFiles()
-                    }))
-                .append($('<span>').addClass('name').text(fileName))
-                .append($('<div>').addClass('delete-btn')
-                    .append($deleteFileSvg.clone())
-                    .on('click', function(event) {
-                        let fileName = $(this).siblings('.name').text()
-                        delete getFilesPathDict()[fileName]
-                        $(this).closest('.file').remove()
-                    })
-                )
+        let isFile = fileObject instanceof ArrayBuffer
+        // create new file element
+        let fileElement = $('<div>').addClass('file').appendTo(uploadedFiles.html)
+        // set icon
+        if (isFile)
+            fileElement.append($fileSvg.clone().addClass('ico'))
+        else
+            fileElement.addClass('folder').append($folderSvg.clone().addClass('ico'))
+        // add file name
+        fileElement.append($('<span>').addClass('name').text(fileName))
+        // add buttons container
+        let buttonsContainer = $('<div>').addClass('buttons-container').appendTo(fileElement)
+        // add open file button
+        if (isFile)
+            buttonsContainer.append($('<div>').addClass('button open-btn')
+                .append($fileLinkSvg.clone())
+                .on('click', function(event) {
+                    let fileName = $(this).parent().siblings('.name').text()
+                    let fileArrayBuffer = getFilesPathDict()[fileName]
+                    let mimeType = getMimeType(fileName)
+                    window.open(URL.createObjectURL(new Blob([fileArrayBuffer], {type: mimeType})), '_blank')
+                })
+            )
+        // add delete button
+        buttonsContainer.append($('<div>').addClass('button delete-btn')
+            .append($deleteFileSvg.clone())
+            .on('click', function(event) {
+                let fileName = $(this).parent().siblings('.name').text()
+                delete getFilesPathDict()[fileName]
+                $(this).closest('.file').remove()
+            })
         )
     })
     filesPanelState = 0
