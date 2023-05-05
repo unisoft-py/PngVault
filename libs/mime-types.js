@@ -5,6 +5,9 @@ function getMimeType(fileName) {
         if (extensions.includes(extension))
             return (resultType = type)
     })
+    if (resultType.startsWith('text'))
+        resultType += ';charset=utf-8'
+    
     return resultType
 }
 function getFileExtension(fileName) {
