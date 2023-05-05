@@ -316,6 +316,11 @@ function updateFiles() {
             fileElement.append($fileSvg.clone().addClass('ico'))
         else
             fileElement.addClass('folder').append($folderSvg.clone().addClass('ico'))
+                .on('click', function(event) {
+                    let folderName = $(this).find('.name').text()
+                    uploadedFiles.path += folderName+'/'
+                    updateFiles()
+                })
         // add file name
         fileElement.append($('<span>').addClass('name').text(fileName))
         // add buttons container
