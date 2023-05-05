@@ -1,10 +1,11 @@
 $(_=>{
 
-$.get('files/load_drop.svg', data => window.$loadDropSvg = $($(data).get(0).firstChild))
-$.get('files/image.svg', data => window.$imageSvg = $($(data).get(0).firstChild))
-$.get('files/file.svg', data => window.$fileSvg = $($(data).get(0).firstChild))
-$.get('files/folder.svg', data => window.$folderSvg = $($(data).get(0).firstChild))
-$.get('files/delete_file.svg', data => window.$deleteFileSvg = $($(data).get(0).firstChild))
+$.get('files/load_drop.svg', data => window.$loadDropSvg = $(data.firstChild))
+$.get('files/image.svg', data => window.$imageSvg = $(data.firstChild))
+$.get('files/file.svg', data => window.$fileSvg = $(data.firstChild))
+$.get('files/folder.svg', data => window.$folderSvg = $(data.firstChild))
+$.get('files/link_arrow.svg', data => window.$fileLinkSvg = $(data.firstChild))
+$.get('files/delete_file.svg', data => window.$deleteFileSvg = $(data.firstChild))
 
 
 var $imageContainer = $('#image-container')
