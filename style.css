@@ -230,6 +230,7 @@ body {
 }
 .file .button {
     cursor: pointer;
+    user-select: none;
     padding: 1rem 0.25rem;
     height: 100%;
     width: fit-content;

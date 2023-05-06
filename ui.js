@@ -334,21 +334,11 @@ function updateFiles() {
                     let fileName = $(this).parent().siblings('.name').text()
                     let fileArrayBuffer = getFilesPathDict()[fileName]
                     let mimeType = getMimeType(fileName)
-                    console.log(fileName, mimeType)
                     let fileBlob = new Blob([fileArrayBuffer], {type: mimeType})
                     let fileObject = new File([fileBlob], fileName, {type: mimeType})
                     let fileURL = URL.createObjectURL(fileObject)
                     
-                    if (
-                        !mimeType.startsWith('application') ||
-                        mimeType == 'application/pdf'
-                    )
-                        window.open(fileURL)
-                    else
-                        $('<a>')
-                            .attr('href', fileURL)
-                            .prop('download', fileName)
-                            .get(0).click()
+                    window.open(fileURL)
                 })
             )
         // add delete button
