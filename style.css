@@ -259,3 +259,21 @@ body {
     background-color: #555;
     border-radius: 5px;
 }
+
+
+@media only screen and (max-width: 700px) {
+    #wrapper {
+        flex-direction: column;
+    }
+
+    #image-panel {
+        max-width: 100%;
+        min-width: 100%;
+        border-top-right-radius: 0;
+        border-bottom-left-radius: 3rem;
+    }
+    #files-panel {
+        border-bottom-left-radius: 0;
+        border-top-right-radius: 3rem;
+    }
+}
