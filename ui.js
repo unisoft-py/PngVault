@@ -38,7 +38,9 @@ var $selectFiles = $('<input>')
 
 var lastDragover, imagePanelState = 0, filesPanelState = 0
 setInterval(_ => {
+    // change to drop zone
     if (new Date() - lastDragover <= 100) {
+        // left panel
         if (imagePanelState != 1) { // костыль
             $imageContainer
                 .addClass('drop-area')
@@ -48,6 +50,7 @@ setInterval(_ => {
             imagePanelState = 1 // костыль
         }
 
+        // right panel
         if (filesPanelState != 2) { // костыль
             $filesContainer
                 .addClass('drop-area')
@@ -59,7 +62,9 @@ setInterval(_ => {
             filesPanelState = 2 // костыль
         }
     }
+    // change back from drop zone
     else {
+        // if no image
         if (uploadedImage === null && imagePanelState != 3) { // костыль
             $('#download-image-btn').hide()
             $imageContainer
@@ -70,6 +75,7 @@ setInterval(_ => {
                 .prepend($imageSvg.clone())
             imagePanelState = 3 // костыль
         }
+        // if there is image
         else if (uploadedImage !== null && imagePanelState != 4) { // костыль
             $('#download-image-btn').show()
             $imageContainer
@@ -80,6 +86,7 @@ setInterval(_ => {
             imagePanelState = 4 // костыль
         }
 
+        // if no files
         if (uploadedFiles === null && filesPanelState != 5) { // костыль
             $('#download-files-btn').css('visibility', 'hidden')
             $('#path-bar').hide()
@@ -92,6 +99,7 @@ setInterval(_ => {
                 .prepend($fileSvg.clone())
             filesPanelState = 5 // костыль
         }
+        // if there are files
         else if (uploadedFiles !== null && filesPanelState != 6) { // костыль
             $('#download-files-btn').css('visibility', 'visible')
             $('#path-bar').show()
@@ -101,6 +109,7 @@ setInterval(_ => {
                 .removeClass('center')
                 .empty()
                 .append(uploadedFiles.html.children())
+            updateFiles()
             filesPanelState = 6 // костыль
         }
 
